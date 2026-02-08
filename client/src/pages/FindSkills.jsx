@@ -16,7 +16,7 @@ function FindSkills() {
 
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/users')
+        const response = await axios.get('https://velopola-a-time-banking-community.onrender.com/api/users')
         setUsers(response.data)
         setLoading(false)
       } catch (err) {
@@ -33,7 +33,7 @@ function FindSkills() {
     
     try {
       const config = { headers: { Authorization: `Bearer ${currentUser.token}` } }
-      await axios.post('http://localhost:5000/api/swaps', { recipientId }, config)
+      await axios.post('https://velopola-a-time-banking-community.onrender.com/api/swaps', { recipientId }, config)
       alert("Request sent! 🌿")
     } catch (err) {
       alert(err.response?.data?.message || "Failed to send request")

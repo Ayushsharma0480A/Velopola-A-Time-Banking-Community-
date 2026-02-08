@@ -36,7 +36,7 @@ function CommunityMap() {
             const storedUser = JSON.parse(localStorage.getItem('user'));
             if(storedUser && storedUser.token) {
                 const config = { headers: { Authorization: `Bearer ${storedUser.token}` } };
-                await axios.put('http://localhost:5000/api/users/location', { lat, lng }, config);
+                await axios.put('https://velopola-a-time-banking-community.onrender.com/api/users/location', { lat, lng }, config);
                 console.log("Location saved to DB! 📍");
             }
         } catch (err) {
@@ -51,7 +51,7 @@ function CommunityMap() {
     // 2. Fetch Users (Now we will use their REAL location)
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/users');
+        const response = await axios.get('https://velopola-a-time-banking-community.onrender.com/api/users');
         setUsers(response.data);
       } catch (error) {
         console.error("Error fetching users", error);

@@ -25,7 +25,7 @@ function Dashboard() {
   const fetchRequests = async (token) => {
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } }
-      const response = await axios.get('http://localhost:5000/api/swaps', config)
+      const response = await axios.get('https://velopola-a-time-banking-community.onrender.com/api/swaps', config)
       setRequests(response.data)
     } catch (error) { console.error(error) }
   }
@@ -40,7 +40,7 @@ function Dashboard() {
     if(!skill) return;
     try {
       const config = { headers: { Authorization: `Bearer ${user.token}` } }
-      const response = await axios.put('http://localhost:5000/api/users/skills', { skill }, config)
+      const response = await axios.put('https://velopola-a-time-banking-community.onrender.com/api/users/skills', { skill }, config)
       setUser({ ...user, skillsOffered: response.data.skillsOffered })
       localStorage.setItem('user', JSON.stringify({ ...user, skillsOffered: response.data.skillsOffered }))
       setSkill('')
@@ -50,7 +50,7 @@ function Dashboard() {
   const handleSwapAction = async (swapId, action) => {
     try {
       const config = { headers: { Authorization: `Bearer ${user.token}` } }
-      await axios.put(`http://localhost:5000/api/swaps/${swapId}`, { status: action }, config)
+      await axios.put(`https://velopola-a-time-banking-community.onrender.com/api/swaps/${swapId}`, { status: action }, config)
       fetchRequests(user.token)
     } catch (error) { alert("Action failed") }
   }

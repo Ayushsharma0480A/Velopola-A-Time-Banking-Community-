@@ -25,7 +25,7 @@ function Register() {
     
     try {
       // Connect to the Backend
-      const response = await axios.post('http://localhost:5000/api/users', formData)
+      const response = await axios.post('https://velopola-a-time-banking-community.onrender.com/api/users', formData)
       
       if(response.data) {
         alert("Registration Successful!")
