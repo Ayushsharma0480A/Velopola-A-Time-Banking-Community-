@@ -16,6 +16,7 @@ app.use(cors());
 // --- ADD THIS SECTION ---
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/swaps', require('./routes/swapRoutes'));
+app.use('/api/notes', require('./routes/noteRoutes'));
 // ------------------------
 
 app.get('/', (req, res) => {
