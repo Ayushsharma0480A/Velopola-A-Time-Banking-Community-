@@ -1,6 +1,7 @@
 require('dotenv').config();
 require('dotenv').config();
-console.log("Mongo URI is:", process.env.MONGO_URI); // <--- Add this line
+console.log("Mongo URI is:", process.env.MONGO_URI);
+const noteRoutes = require('./routes/noteRoutes');
 
 const express = require('express');
 const cors = require('cors');
@@ -16,8 +17,9 @@ app.use(cors());
 // --- ADD THIS SECTION ---
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/swaps', require('./routes/swapRoutes'));
-app.use('/api/notes', require('./routes/noteRoutes'));
+
 // ------------------------
+app.use('/api/notes', noteRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');
