@@ -126,13 +126,22 @@ function Dashboard() {
 
   const handleSwapAction = async (swapId, action) => {
     try {
-      const config = { headers: { Authorization: `Bearer ${user.token}` } }
-      await axios.put(`https://velopola-a-time-banking-community.onrender.com/api/swaps/${swapId}`, { status: action }, config)
-      fetchRequests(user.token) 
-      if(action === 'accepted') toast.success("Request Accepted!")
-      else toast('Request Rejected', { icon: '👋' })
-    } catch (error) { toast.error("Action failed") }
-  }
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      await axios.put(`https://velopola-a-time-banking-community.onrender.com/api/swaps/${swapId}`, { status: action }, config);
+      
+      // INSTANT UI UPDATE: Map through current requests and change the status locally
+      setRequests(prevRequests => 
+        prevRequests.map(req => 
+          req._id === swapId ? { ...req, status: action } : req
+        )
+      );
+
+      if(action === 'accepted') toast.success("Request Accepted!");
+      else toast('Request Rejected', { icon: '👋' });
+    } catch (error) { 
+      toast.error("Action failed"); 
+    }
+  };
 
   if (loading || !user) return (
     <div className="min-h-[60vh] flex items-center justify-center">
