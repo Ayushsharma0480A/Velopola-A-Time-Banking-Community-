@@ -1,67 +1,45 @@
 const Swap = require('../models/Swap');
+const User = require('../models/User');
 
-// @desc    Send a swap request
-// @route   POST /api/swaps
-// @access  Private
-const createSwap = async (req, res) => {
-  const { recipientId } = req.body;
+// ... keep createSwap and getMySwaps as they are ...
 
-  if (!recipientId) {
-    return res.status(400).json({ message: 'Recipient ID is required' });
-  }
-
-  // Prevent requesting yourself
-  if (req.user.id === recipientId) {
-    return res.status(400).json({ message: 'You cannot request a swap with yourself' });
-  }
-
-  const swap = await Swap.create({
-    requester: req.user.id,
-    recipient: recipientId,
-  });
-
-  res.status(201).json(swap);
-};
-
-// @desc    Get swaps where I am the recipient
-// @route   GET /api/swaps
-// @access  Private
-const getMySwaps = async (req, res) => {
-  // Find swaps where recipient is ME
-  // .populate('requester') fetches the name/email of the person who asked!
-  const swaps = await Swap.find({ recipient: req.user.id })
-    .populate('requester', 'name email') 
-    .sort({ createdAt: -1 }); // Newest first
-
-  res.json(swaps);
-};
-
-// @desc    Update swap status (Accept/Reject)
-// @route   PUT /api/swaps/:id
-// @access  Private
+// @desc    Update swap status (Accept/Reject/Schedule)
 const updateSwapStatus = async (req, res) => {
-  const { status } = req.body; // 'accepted' or 'rejected'
-  
-  // Find the swap by ID
+  const { status, meetingLink, scheduledDate } = req.body;
   const swap = await Swap.findById(req.params.id);
 
-  if (!swap) {
-    return res.status(404).json({ message: 'Swap request not found' });
-  }
+  if (!swap) return res.status(404).json({ message: 'Swap not found' });
+  if (swap.recipient.toString() !== req.user.id) return res.status(401).json({ message: 'Not authorized' });
 
-  // Security Check: Only the RECIPIENT can accept/reject!
-  if (swap.recipient.toString() !== req.user.id) {
-    return res.status(401).json({ message: 'Not authorized to manage this swap' });
-  }
+  // Update fields if provided
+  if (status) swap.status = status;
+  if (meetingLink) swap.meetingLink = meetingLink;
+  if (scheduledDate) swap.scheduledDate = scheduledDate;
 
-  swap.status = status;
   await swap.save();
-
   res.json(swap);
 };
 
-module.exports = {
-  createSwap,
-  getMySwaps,
-  updateSwapStatus, // <--- Don't forget this!
+// @desc    Finalize the swap and transfer credits (THE MOTTO)
+// @route   PUT /api/swaps/:id/complete
+const completeSwap = async (req, res) => {
+  const swap = await Swap.findById(req.params.id);
+
+  if (!swap) return res.status(404).json({ message: 'Swap not found' });
+  if (swap.status !== 'accepted') return res.status(400).json({ message: 'Swap must be accepted first' });
+
+  // 1. The Provider (Recipient) earns 1 hour
+  await User.findByIdAndUpdate(swap.recipient, { $inc: { credits: 1 } });
+  
+  // 2. The Requester loses 1 hour
+  await User.findByIdAndUpdate(swap.requester, { $inc: { credits: -1 } });
+
+  // 3. Mark as completed
+  swap.status = 'completed';
+  swap.isCreditTransferred = true;
+  await swap.save();
+
+  res.json({ message: 'Credits transferred successfully', swap });
 };
+
+module.exports = { createSwap, getMySwaps, updateSwapStatus, completeSwap };
