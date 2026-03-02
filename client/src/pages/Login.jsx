@@ -23,9 +23,10 @@ function Login() {
     e.preventDefault()
     try {
       const response = await axios.post('https://velopola-a-time-banking-community.onrender.com/api/users/login', formData)
+      // Inside Login.jsx onSubmit
       if(response.data) {
-        localStorage.setItem('user', JSON.stringify(response.data))
-        navigate('/') 
+        localStorage.setItem('user', JSON.stringify(response.data));
+        navigate('/dashboard'); // Use /dashboard specifically
       }
     } catch (error) {
       console.error(error)

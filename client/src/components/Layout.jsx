@@ -130,14 +130,25 @@ const Footer = () => (
   </footer>
 );
 
+// Inside your Layout component in Layout.jsx
 const Layout = ({ children }) => {
   const [user, setUser] = React.useState(null);
   const navigate = useNavigate();
+  const location = useLocation(); // Add this to trigger checks on page change
 
-  React.useEffect(() => {
+  const checkUser = () => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) setUser(JSON.parse(storedUser));
-  }, []);
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      setUser(null);
+    }
+  };
+
+  // Check for user whenever the URL path changes
+  React.useEffect(() => {
+    checkUser();
+  }, [location.pathname]); 
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -145,6 +156,7 @@ const Layout = ({ children }) => {
     navigate('/login');
   };
 
+  // ... rest of your return code
   return (
     <div className="min-h-screen flex flex-col bg-cream/30 font-sans text-gray-900">
       <Navbar user={user} onLogout={handleLogout} />
