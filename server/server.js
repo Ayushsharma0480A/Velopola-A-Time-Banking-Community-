@@ -1,33 +1,28 @@
 require('dotenv').config();
-require('dotenv').config();
-console.log("Mongo URI is:", process.env.MONGO_URI);
-const noteRoutes = require('./routes/noteRoutes');
-
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./config/db'); // Import the connection function
+const connectDB = require('./config/db');
+const noteRoutes = require('./routes/noteRoutes');
 
-// Connect to Database
+// 1. Connect to Database FIRST
 connectDB();
 
 const app = express();
 
+// 2. Middleware
 app.use(express.json());
 app.use(cors());
-// --- ADD THIS SECTION ---
+
+// 3. Routes (Make sure these paths match your folder names exactly)
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/swaps', require('./routes/swapRoutes'));
-
-// ------------------------
-app.use('/api/notes', noteRoutes);
+app.use('/api/notes', noteRoutes); 
 
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
